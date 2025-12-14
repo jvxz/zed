@@ -40,6 +40,7 @@ pub struct EditorSettings {
     pub scroll_sensitivity: f32,
     pub mouse_wheel_zoom: bool,
     pub fast_scroll_sensitivity: f32,
+    pub smooth_scroll: bool,
     pub sticky_scroll: StickyScroll,
     pub relative_line_numbers: RelativeLineNumbers,
     pub seed_search_query_from_cursor: SeedQuerySetting,
@@ -266,6 +267,7 @@ impl Settings for EditorSettings {
             scroll_sensitivity: editor.scroll_sensitivity.unwrap(),
             mouse_wheel_zoom: editor.mouse_wheel_zoom.unwrap(),
             fast_scroll_sensitivity: editor.fast_scroll_sensitivity.unwrap(),
+            smooth_scroll: editor.smooth_scroll.unwrap(),
             sticky_scroll: StickyScroll {
                 enabled: sticky_scroll.enabled.unwrap(),
             },
