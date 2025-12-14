@@ -7920,12 +7920,19 @@ impl EditorElement {
                                 }
                             };
 
-                            let current_scroll_position = position_map.snapshot.scroll_position();
-                            let x = (current_scroll_position.x
+                            let current_scroll_position =
+                                position_map.snapshot.scroll_position();
+                            let base_scroll_position = editor
+                                .scroll_manager
+                                .scroll_animation()
+                                .map(|animation| animation.target_position)
+                                .unwrap_or(current_scroll_position);
+
+                            let x = (base_scroll_position.x
                                 * ScrollPixelOffset::from(glyph_width)
                                 - ScrollPixelOffset::from(delta.x * scroll_sensitivity))
                                 / ScrollPixelOffset::from(glyph_width);
-                            let y = (current_scroll_position.y
+                            let y = (base_scroll_position.y
                                 * ScrollPixelOffset::from(line_height)
                                 - ScrollPixelOffset::from(delta.y * scroll_sensitivity))
                                 / ScrollPixelOffset::from(line_height);
@@ -7934,10 +7941,10 @@ impl EditorElement {
                             let forbid_vertical_scroll =
                                 editor.scroll_manager.forbid_vertical_scroll();
                             if forbid_vertical_scroll {
-                                scroll_position.y = current_scroll_position.y;
+                                scroll_position.y = base_scroll_position.y;
                             }
 
-                            if scroll_position != current_scroll_position {
+                            if scroll_position != base_scroll_position {
                                 editor.animate_scroll_to(scroll_position, axis, window, cx);
                                 cx.stop_propagation();
                             } else if y < 0. {
