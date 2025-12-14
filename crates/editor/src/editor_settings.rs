@@ -269,7 +269,7 @@ impl Settings for EditorSettings {
             mouse_wheel_zoom: editor.mouse_wheel_zoom.unwrap(),
             fast_scroll_sensitivity: editor.fast_scroll_sensitivity.unwrap(),
             smooth_scroll: editor.smooth_scroll.unwrap(),
-            smooth_scroll_duration: editor.smooth_scroll_duration.unwrap_or(0.25),
+            smooth_scroll_duration: editor.smooth_scroll_duration.unwrap_or(0.2),
             sticky_scroll: StickyScroll {
                 enabled: sticky_scroll.enabled.unwrap(),
             },
