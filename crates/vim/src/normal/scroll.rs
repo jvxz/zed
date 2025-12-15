@@ -140,8 +140,22 @@ impl Vim {
                 return;
             };
 
-            let display_snapshot = editor.display_map.update(cx, |map, cx| map.snapshot(cx));
-            let top = editor.scroll_top_display_point(&display_snapshot, cx);
+            let target_scroll_position = editor
+                .scroll_manager
+                .scroll_animation()
+                .map(|a| a.target_position)
+                .unwrap_or_else(|| {
+                    editor.display_map.update(cx, |map, cx| {
+                        editor
+                            .scroll_manager
+                            .anchor()
+                            .scroll_position(&map.snapshot(cx))
+                    })
+                });
+
+            let top_row = DisplayRow(target_scroll_position.y as u32);
+            let top_column = target_scroll_position.x as u32;
+
             let vertical_scroll_margin = EditorSettings::get_global(cx).vertical_scroll_margin;
 
             let mut move_cursor = |map: &editor::display_map::DisplaySnapshot,
@@ -160,35 +174,35 @@ impl Vim {
 
                 if preserve_cursor_position {
                     let new_row =
-                        if old_top.row() == top.row() {
+                        if old_top.row() == top_row {
                             DisplayRow(
                                 head.row()
                                     .0
                                     .saturating_add_signed(amount.lines(visible_line_count) as i32),
                             )
                         } else {
-                            DisplayRow(top.row().0.saturating_add_signed(
+                            DisplayRow(top_row.0.saturating_add_signed(
                                 head.row().0 as i32 - old_top.row().0 as i32,
                             ))
                         };
                     head = map.clip_point(DisplayPoint::new(new_row, head.column()), Bias::Left)
                 }
 
-                let min_row = if top.row().0 == 0 {
+                let min_row = if top_row.0 == 0 {
                     DisplayRow(0)
                 } else {
-                    DisplayRow(top.row().0 + vertical_scroll_margin)
+                    DisplayRow(top_row.0 + vertical_scroll_margin)
                 };
 
-                let max_visible_row = top.row().0.saturating_add(
+                let max_visible_row = top_row.0.saturating_add(
                     (visible_line_count as u32).saturating_sub(1 + vertical_scroll_margin),
                 );
                 // scroll off the end.
-                let max_row = if top.row().0 + visible_line_count as u32 >= max_point.row().0 {
+                let max_row = if top_row.0 + visible_line_count as u32 >= max_point.row().0 {
                     max_point.row()
                 } else {
                     DisplayRow(
-                        (top.row().0 + visible_line_count as u32)
+                        (top_row.0 + visible_line_count as u32)
                             .saturating_sub(1 + vertical_scroll_margin),
                     )
                 };
@@ -217,7 +231,7 @@ impl Vim {
                 // would end up being the same as the maximum column.
                 let min_column = match preserve_cursor_position {
                     true => old_top.column(),
-                    false => top.column(),
+                    false => top_column,
                 };
 
                 // As for the maximum column position, that should be either the
