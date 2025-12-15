@@ -137,7 +137,7 @@ pub struct EditorSettingsContent {
     pub smooth_scroll: Option<bool>,
     /// Duration in seconds for smooth scroll easing.
     ///
-    /// Default: 0.2
+    /// Default: 0.14
     #[serde(serialize_with = "crate::serialize_optional_f32_with_two_decimal_places")]
     pub smooth_scroll_duration: Option<f32>,
     /// Settings for sticking scopes to the top of the editor.
