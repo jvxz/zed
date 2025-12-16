@@ -1012,7 +1012,13 @@ impl Editor {
             return;
         }
 
-        let mut current_position = self.scroll_position(cx);
+        // Use animation target if animating, otherwise current position
+        let mut current_position = self
+            .scroll_manager
+            .scroll_animation()
+            .map(|a| a.target_position)
+            .unwrap_or_else(|| self.scroll_position(cx));
+
         let Some(visible_line_count) = self.visible_line_count() else {
             return;
         };
@@ -1051,7 +1057,7 @@ impl Editor {
                 amount.lines(visible_line_count),
             );
 
-        self.scroll_animated(new_position, None, cx);
+        self.scroll_animated(new_position, None, window, cx);
     }
 
     /// Returns an ordering. The newest selection is:

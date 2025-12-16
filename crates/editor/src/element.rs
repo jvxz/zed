@@ -7958,7 +7958,7 @@ impl EditorElement {
                                 if is_precise || !smooth_scroll {
                                     editor.scroll(scroll_position, axis, window, cx);
                                 } else {
-                                    editor.scroll_animated(scroll_position, axis, cx);
+                                    editor.scroll_animated(scroll_position, axis, window, cx);
                                 }
                                 cx.stop_propagation();
                             } else if y < 0. {
