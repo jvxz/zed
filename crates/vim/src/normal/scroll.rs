@@ -108,15 +108,28 @@ impl Vim {
     ) {
         self.update_editor(cx, |vim, editor, cx| {
             let should_move_cursor = editor.newest_selection_on_screen(cx).is_eq();
-            let display_snapshot = editor.display_map.update(cx, |map, cx| map.snapshot(cx));
-            let old_top = editor.scroll_top_display_point(&display_snapshot, cx);
+
+            let (old_top_row, old_top_column) = editor
+                .scroll_manager
+                .scroll_animation()
+                .map(|a| {
+                    (
+                        DisplayRow(a.target_position.y as u32),
+                        a.target_position.x as u32,
+                    )
+                })
+                .unwrap_or_else(|| {
+                    let snapshot = editor.display_map.update(cx, |map, cx| map.snapshot(cx));
+                    let position = editor.scroll_manager.anchor().scroll_position(&snapshot);
+                    (DisplayRow(position.y as u32), position.x as u32)
+                });
 
             if editor.scroll_hover(amount, window, cx) {
                 return;
             }
 
             let full_page_up = amount.is_full_page() && amount.direction().is_upwards();
-            let amount = match (amount.is_full_page(), editor.visible_line_count()) {
+            let amount_row = match (amount.is_full_page(), editor.visible_line_count()) {
                 (true, Some(visible_line_count)) => {
                     if amount.direction().is_upwards() {
                         ScrollAmount::Line((amount.lines(visible_line_count) + 1.0) as f32)
@@ -127,7 +140,7 @@ impl Vim {
                 _ => amount,
             };
 
-            editor.scroll_screen(&amount, window, cx);
+            editor.scroll_screen(&amount_row, window, cx);
             if !should_move_cursor {
                 return;
             }
@@ -174,7 +187,7 @@ impl Vim {
 
                 if preserve_cursor_position {
                     let new_row =
-                        if old_top.row() == top_row {
+                        if old_top_row == top_row {
                             DisplayRow(
                                 head.row()
                                     .0
@@ -182,7 +195,7 @@ impl Vim {
                             )
                         } else {
                             DisplayRow(top_row.0.saturating_add_signed(
-                                head.row().0 as i32 - old_top.row().0 as i32,
+                                head.row().0 as i32 - old_top_row.0 as i32,
                             ))
                         };
                     head = map.clip_point(DisplayPoint::new(new_row, head.column()), Bias::Left)
@@ -230,7 +243,7 @@ impl Vim {
                 // maximum column for the current line, so the minimum column
                 // would end up being the same as the maximum column.
                 let min_column = match preserve_cursor_position {
-                    true => old_top.column(),
+                    true => old_top_column,
                     false => top_column,
                 };
 
