@@ -7902,6 +7902,8 @@ impl EditorElement {
                         };
 
                         editor.update(cx, |editor, cx| {
+                            let is_precise = delta.precise();
+                            let smooth_scroll = EditorSettings::get_global(cx).smooth_scroll;
                             let line_height = position_map.line_height;
                             let glyph_width = position_map.em_layout_width;
                             let (delta, axis) = match delta {
@@ -7911,7 +7913,6 @@ impl EditorElement {
                                         position_map.snapshot.ongoing_scroll.filter(&mut pixels);
                                     (pixels, axis)
                                 }
-
                                 gpui::ScrollDelta::Lines(lines) => {
                                     //Not trackpad
                                     let pixels =
@@ -7922,11 +7923,20 @@ impl EditorElement {
 
                             let current_scroll_position =
                                 position_map.snapshot.scroll_position();
-                            let base_scroll_position = editor
-                                .scroll_manager
-                                .scroll_animation()
-                                .map(|animation| animation.target_position)
-                                .unwrap_or(current_scroll_position);
+
+                            if is_precise {
+                                editor.scroll_manager.cancel_animation();
+                            }
+
+                            let base_scroll_position = if is_precise || !smooth_scroll {
+                                current_scroll_position
+                            } else {
+                                editor
+                                    .scroll_manager
+                                    .scroll_animation()
+                                    .map(|animation| animation.target_position)
+                                    .unwrap_or(current_scroll_position)
+                            };
 
                             let x = (base_scroll_position.x
                                 * ScrollPixelOffset::from(glyph_width)
@@ -7945,7 +7955,11 @@ impl EditorElement {
                             }
 
                             if scroll_position != base_scroll_position {
-                                editor.scroll(scroll_position, axis, window, cx);
+                                if is_precise || !smooth_scroll {
+                                    editor.scroll(scroll_position, axis, window, cx);
+                                } else {
+                                    editor.scroll_animated(scroll_position, axis, cx);
+                                }
                                 cx.stop_propagation();
                             } else if y < 0. {
                                 // Due to clamping, we may fail to detect cases of overscroll to the top;
