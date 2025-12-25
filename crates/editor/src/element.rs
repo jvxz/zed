@@ -7903,7 +7903,8 @@ impl EditorElement {
 
                         editor.update(cx, |editor, cx| {
                             let is_precise = delta.precise();
-                            let smooth_scroll = EditorSettings::get_global(cx).smooth_scroll;
+                            let smooth_scroll_enabled =
+                                EditorSettings::get_global(cx).smooth_scroll.enabled;
                             let line_height = position_map.line_height;
                             let glyph_width = position_map.em_layout_width;
                             let (delta, axis) = match delta {
@@ -7928,7 +7929,7 @@ impl EditorElement {
                                 editor.scroll_manager.cancel_animation();
                             }
 
-                            let base_scroll_position = if is_precise || !smooth_scroll {
+                            let base_scroll_position = if is_precise || !smooth_scroll_enabled {
                                 current_scroll_position
                             } else {
                                 editor
@@ -7955,7 +7956,7 @@ impl EditorElement {
                             }
 
                             if scroll_position != base_scroll_position {
-                                if is_precise || !smooth_scroll {
+                                if is_precise || !smooth_scroll_enabled {
                                     editor.scroll(scroll_position, axis, window, cx);
                                 } else {
                                     editor.scroll_animated(scroll_position, axis, window, cx);
