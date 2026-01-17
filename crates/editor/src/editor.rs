@@ -17060,6 +17060,8 @@ impl Editor {
         {
             let editor_settings = EditorSettings::get_global(cx);
             self.scroll_manager.vertical_scroll_margin = editor_settings.vertical_scroll_margin;
+            self.scroll_manager.scroll_animation_duration =
+                std::time::Duration::from_secs_f32(editor_settings.smooth_scroll.duration);
             self.show_breadcrumbs = editor_settings.toolbar.breadcrumbs;
             self.cursor_shape = editor_settings.cursor_shape.unwrap_or_default();
         }

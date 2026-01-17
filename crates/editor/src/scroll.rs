@@ -279,7 +279,7 @@ pub struct ScrollManager {
     minimap_thumb_state: Option<ScrollbarThumbState>,
     _save_scroll_position_task: Task<()>,
     scroll_animation: Option<ScrollAnimation>,
-    scroll_animation_duration: Duration,
+    pub(crate) scroll_animation_duration: Duration,
 }
 
 impl ScrollManager {
@@ -306,7 +306,6 @@ impl ScrollManager {
             minimap_thumb_state: None,
             _save_scroll_position_task: Task::ready(()),
             scroll_animation: None,
-            // TODO: We are not listening for settings change
             scroll_animation_duration: Duration::from_secs_f32(
                 editor_settings.smooth_scroll.duration,
             ),
