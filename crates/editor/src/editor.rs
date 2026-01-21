@@ -18824,6 +18824,14 @@ impl EditorSnapshot {
         self.scroll_anchor.scroll_position(&self.display_snapshot)
     }
 
+    pub fn scroll_target_or_position(&self) -> gpui::Point<ScrollOffset> {
+        if let Some(animation) = self.scroll_animation {
+            animation.target_position
+        } else {
+            self.scroll_position()
+        }
+    }
+
     pub fn max_line_number_width(&self, style: &EditorStyle, window: &mut Window) -> Pixels {
         let digit_count = self.widest_line_number().ilog10() + 1;
         column_pixels(style, digit_count as usize, window)
