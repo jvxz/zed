@@ -192,6 +192,12 @@ impl ActiveScrollbarState {
 }
 
 #[derive(Clone, Copy, Debug)]
+pub enum ScrollBehavior {
+    Instant,
+    RequestAnimation,
+}
+
+#[derive(Clone, Copy, Debug)]
 pub enum ScrollAnimationPhase {
     Intermediate,
     Final,
@@ -884,7 +890,13 @@ impl Editor {
             let current_position = self.scroll_position(cx);
             let new_position = point(current_position.x, row.0 as f64);
 
-            self.scroll_animated(new_position, None, window, cx);
+            self.scroll(
+                new_position,
+                None,
+                ScrollBehavior::RequestAnimation,
+                window,
+                cx,
+            );
         } else {
             let snapshot = self.snapshot(window, cx).display_snapshot;
             let new_screen_top = DisplayPoint::new(row, 0);
@@ -1078,7 +1090,12 @@ impl Editor {
                 amount.lines(visible_line_count),
             );
 
-        self.scroll_animated(new_position, None, window, cx);
+        let behavior = if EditorSettings::get_global(cx).smooth_scroll.enabled {
+            ScrollBehavior::RequestAnimation
+        } else {
+            ScrollBehavior::Instant
+        };
+        self.scroll(new_position, None, behavior, window, cx);
     }
 
     /// Returns an ordering. The newest selection is:
