@@ -205,7 +205,9 @@ use project::{
 use rand::seq::SliceRandom;
 use regex::Regex;
 use rpc::{ErrorCode, ErrorExt, proto::PeerId};
-use scroll::{Autoscroll, OngoingScroll, ScrollAnchor, ScrollManager, SharedScrollAnchor};
+use scroll::{
+    Autoscroll, OngoingScroll, ScrollAnchor, ScrollAnimation, ScrollManager, SharedScrollAnchor,
+};
 use selections_collection::{MutableSelectionsCollection, SelectionsCollection};
 use serde::{Deserialize, Serialize};
 use settings::{
@@ -1311,6 +1313,7 @@ pub struct EditorSnapshot {
     pub placeholder_display_snapshot: Option<DisplaySnapshot>,
     is_focused: bool,
     scroll_anchor: SharedScrollAnchor,
+    pub scroll_animation: Option<ScrollAnimation>,
     ongoing_scroll: OngoingScroll,
     current_line_highlight: CurrentLineHighlight,
     gutter_hovered: bool,
@@ -3248,6 +3251,7 @@ impl Editor {
                 .placeholder_display_map
                 .as_ref()
                 .map(|display_map| display_map.update(cx, |map, cx| map.snapshot(cx))),
+            scroll_animation: self.scroll_manager.scroll_animation().copied(),
             ongoing_scroll: self.scroll_manager.ongoing_scroll(),
             is_focused: self.focus_handle.is_focused(window),
             current_line_highlight: self
