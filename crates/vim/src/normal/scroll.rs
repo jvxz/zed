@@ -166,18 +166,17 @@ impl Vim {
                     (vertical_scroll_margin as u32).min(visible_line_count as u32 / 2);
 
                 if preserve_cursor_position {
-                    let new_row =
-                        if old_top_row == top_row {
-                            DisplayRow(
-                                head.row()
-                                    .0
-                                    .saturating_add_signed(amount.lines(visible_line_count) as i32),
-                            )
-                        } else {
-                            DisplayRow(top_row.0.saturating_add_signed(
-                                head.row().0 as i32 - old_top_row.0 as i32,
-                            ))
-                        };
+                    let new_row = if old_top_row == top_row {
+                        DisplayRow(
+                            head.row()
+                                .0
+                                .saturating_add_signed(amount.lines(visible_line_count) as i32),
+                        )
+                    } else {
+                        DisplayRow(top_row.0.saturating_add_signed(
+                            head.row().0 as i32 - old_top_row.0 as i32,
+                        ))
+                    };
                     head = map.clip_point(DisplayPoint::new(new_row, head.column()), Bias::Left)
                 }
 
