@@ -2850,33 +2850,33 @@ async fn test_scroll_page_up_page_down(cx: &mut TestAppContext) {
 
     cx.update_editor(|editor, window, cx| {
         assert_eq!(
-            editor.snapshot(window, cx).scroll_position(),
+            editor.snapshot(window, cx).scroll_target_or_position(),
             gpui::Point::new(0., 0.)
         );
         editor.scroll_screen(&ScrollAmount::Page(1.), window, cx);
         assert_eq!(
-            editor.snapshot(window, cx).scroll_position(),
+            editor.snapshot(window, cx).scroll_target_or_position(),
             gpui::Point::new(0., 3.)
         );
         editor.scroll_screen(&ScrollAmount::Page(1.), window, cx);
         assert_eq!(
-            editor.snapshot(window, cx).scroll_position(),
+            editor.snapshot(window, cx).scroll_target_or_position(),
             gpui::Point::new(0., 6.)
         );
         editor.scroll_screen(&ScrollAmount::Page(-1.), window, cx);
         assert_eq!(
-            editor.snapshot(window, cx).scroll_position(),
+            editor.snapshot(window, cx).scroll_target_or_position(),
             gpui::Point::new(0., 3.)
         );
 
         editor.scroll_screen(&ScrollAmount::Page(-0.5), window, cx);
         assert_eq!(
-            editor.snapshot(window, cx).scroll_position(),
+            editor.snapshot(window, cx).scroll_target_or_position(),
             gpui::Point::new(0., 1.)
         );
         editor.scroll_screen(&ScrollAmount::Page(0.5), window, cx);
         assert_eq!(
-            editor.snapshot(window, cx).scroll_position(),
+            editor.snapshot(window, cx).scroll_target_or_position(),
             gpui::Point::new(0., 3.)
         );
     });
