@@ -86,7 +86,6 @@ pub struct StickyScroll {
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct SmoothScroll {
     pub enabled: bool,
-    pub duration: f32,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -276,7 +275,6 @@ impl Settings for EditorSettings {
             fast_scroll_sensitivity: editor.fast_scroll_sensitivity.unwrap(),
             smooth_scroll: SmoothScroll {
                 enabled: smooth_scroll.enabled.unwrap_or(false),
-                duration: smooth_scroll.duration.unwrap_or(0.125).max(0.0),
             },
             sticky_scroll: StickyScroll {
                 enabled: sticky_scroll.enabled.unwrap(),

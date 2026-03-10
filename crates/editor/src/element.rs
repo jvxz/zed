@@ -30,8 +30,8 @@ use crate::{
     inlay_hint_settings,
     mouse_context_menu::{self, MenuPosition},
     scroll::{
-        ActiveScrollbarState, Autoscroll, ScrollBehavior, ScrollOffset, ScrollPixelOffset,
-        ScrollbarThumbState, scroll_amount::ScrollAmount,
+        ActiveScrollbarState, Autoscroll, ScrollOffset, ScrollPixelOffset, ScrollbarThumbState,
+        scroll_amount::ScrollAmount,
     },
 };
 use buffer_diff::{DiffHunkStatus, DiffHunkStatusKind};
@@ -7935,7 +7935,7 @@ impl EditorElement {
                                 editor
                                     .scroll_manager
                                     .scroll_animation()
-                                    .map(|animation| animation.target_position)
+                                    .map(|animation| animation.target_position())
                                     .unwrap_or(current_scroll_position)
                             };
 
@@ -7965,7 +7965,7 @@ impl EditorElement {
                                 editor.scroll(
                                     scroll_position,
                                     axis,
-                                    scroll_behavior,
+                                    Some(scroll_behavior),
                                     window,
                                     cx,
                                 );
@@ -10085,11 +10085,9 @@ impl Element for EditorElement {
                         editor.set_visible_column_count(f64::from(editor_width / em_advance));
 
                         if let Some(animation) = editor.scroll_manager.update_animation() {
-                            use crate::scroll::ScrollAnimationPhase;
+                            editor.set_scroll_position(animation.position(), window, cx);
 
-                            editor.set_scroll_position(animation.position, window, cx);
-
-                            if animation.phase == ScrollAnimationPhase::Intermediate {
+                            if animation.is_animating() {
                                 window.request_animation_frame();
                             }
                         }

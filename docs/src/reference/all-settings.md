@@ -3606,7 +3606,6 @@ Non-negative `integer` values
 ```json [settings]
 "smooth_scroll": {
   "enabled": false,
-  "duration": 0.125
 }
 ```
 
@@ -3621,16 +3620,6 @@ Non-negative `integer` values
 **Options**
 
 `boolean` values
-
-### Duration
-
-- Description: Duration of the smooth scroll animation in seconds.
-- Setting: `duration`
-- Default: `0.125`
-
-**Options**
-
-Positive `float` values
 
 ## Search
 

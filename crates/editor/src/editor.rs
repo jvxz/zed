@@ -1313,7 +1313,7 @@ pub struct EditorSnapshot {
     pub placeholder_display_snapshot: Option<DisplaySnapshot>,
     is_focused: bool,
     scroll_anchor: SharedScrollAnchor,
-    pub scroll_animation: Option<ScrollAnimation>,
+    scroll_animation: Option<ScrollAnimation>,
     ongoing_scroll: OngoingScroll,
     current_line_highlight: CurrentLineHighlight,
     gutter_hovered: bool,
@@ -17064,6 +17064,7 @@ impl Editor {
         {
             let editor_settings = EditorSettings::get_global(cx);
             self.scroll_manager.vertical_scroll_margin = editor_settings.vertical_scroll_margin;
+            self.scroll_manager.smooth_scroll = editor_settings.smooth_scroll.enabled;
             self.show_breadcrumbs = editor_settings.toolbar.breadcrumbs;
             self.cursor_shape = editor_settings.cursor_shape.unwrap_or_default();
         }
@@ -18824,7 +18825,7 @@ impl EditorSnapshot {
 
     pub fn scroll_target_or_position(&self) -> gpui::Point<ScrollOffset> {
         if let Some(animation) = self.scroll_animation {
-            animation.target_position
+            animation.target_position()
         } else {
             self.scroll_position()
         }

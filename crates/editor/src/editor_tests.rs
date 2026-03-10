@@ -2850,33 +2850,33 @@ async fn test_scroll_page_up_page_down(cx: &mut TestAppContext) {
 
     cx.update_editor(|editor, window, cx| {
         assert_eq!(
-            editor.snapshot(window, cx).scroll_target_or_position(),
+            editor.snapshot(window, cx).scroll_position(),
             gpui::Point::new(0., 0.)
         );
         editor.scroll_screen(&ScrollAmount::Page(1.), window, cx);
         assert_eq!(
-            editor.snapshot(window, cx).scroll_target_or_position(),
+            editor.snapshot(window, cx).scroll_position(),
             gpui::Point::new(0., 3.)
         );
         editor.scroll_screen(&ScrollAmount::Page(1.), window, cx);
         assert_eq!(
-            editor.snapshot(window, cx).scroll_target_or_position(),
+            editor.snapshot(window, cx).scroll_position(),
             gpui::Point::new(0., 6.)
         );
         editor.scroll_screen(&ScrollAmount::Page(-1.), window, cx);
         assert_eq!(
-            editor.snapshot(window, cx).scroll_target_or_position(),
+            editor.snapshot(window, cx).scroll_position(),
             gpui::Point::new(0., 3.)
         );
 
         editor.scroll_screen(&ScrollAmount::Page(-0.5), window, cx);
         assert_eq!(
-            editor.snapshot(window, cx).scroll_target_or_position(),
+            editor.snapshot(window, cx).scroll_position(),
             gpui::Point::new(0., 1.)
         );
         editor.scroll_screen(&ScrollAmount::Page(0.5), window, cx);
         assert_eq!(
-            editor.snapshot(window, cx).scroll_target_or_position(),
+            editor.snapshot(window, cx).scroll_position(),
             gpui::Point::new(0., 3.)
         );
     });
@@ -25741,7 +25741,7 @@ async fn test_expand_first_line_diff_hunk_keeps_deleted_lines_visible(
         editor.scroll(
             gpui::Point { x: 0., y: 0. },
             None,
-            ScrollBehavior::Instant,
+            Some(ScrollBehavior::Instant),
             window,
             cx,
         );
@@ -33306,7 +33306,7 @@ async fn test_sticky_scroll(cx: &mut TestAppContext) {
             e.scroll(
                 gpui::Point { x: 0., y: offset },
                 None,
-                ScrollBehavior::Instant,
+                Some(ScrollBehavior::Instant),
                 window,
                 cx,
             );
@@ -33396,7 +33396,13 @@ async fn test_sticky_scroll_with_decoration_prefix_in_item(cx: &mut TestAppConte
 
     let mut sticky_headers = |offset: ScrollOffset| {
         cx.update_editor(|e, window, cx| {
-            e.scroll(gpui::Point { x: 0., y: offset }, None, ScrollBehavior::Instant, window, cx);
+            e.scroll(
+                gpui::Point { x: 0., y: offset },
+                None,
+                Some(ScrollBehavior::Instant),
+                window,
+                cx,
+            );
         });
         cx.run_until_parked();
         cx.update_editor(|e, window, cx| {
@@ -33485,7 +33491,7 @@ async fn test_sticky_scroll_with_expanded_deleted_diff_hunks(
             e.scroll(
                 gpui::Point { x: 0., y: offset },
                 None,
-                ScrollBehavior::Instant,
+                Some(ScrollBehavior::Instant),
                 window,
                 cx,
             );
@@ -33544,7 +33550,13 @@ async fn test_no_duplicated_sticky_headers(cx: &mut TestAppContext) {
 
     let mut sticky_headers = |offset: ScrollOffset| {
         cx.update_editor(|e, window, cx| {
-            e.scroll(gpui::Point { x: 0., y: offset }, None, ScrollBehavior::Instant, window, cx);
+            e.scroll(
+                gpui::Point { x: 0., y: offset },
+                None,
+                Some(ScrollBehavior::Instant),
+                window,
+                cx,
+            );
         });
         cx.run_until_parked();
         cx.update_editor(|e, window, cx| {
@@ -33841,7 +33853,7 @@ async fn test_scroll_by_clicking_sticky_header(cx: &mut TestAppContext) {
                     y: scroll_offset,
                 },
                 None,
-                ScrollBehavior::Instant,
+                Some(ScrollBehavior::Instant),
                 window,
                 cx,
             );
@@ -33933,7 +33945,13 @@ async fn test_scroll_by_clicking_sticky_header(cx: &mut TestAppContext) {
     // The text "impl Bar {" starts at column 0, so column 5 = 'B'.
     let click_x = text_origin_x + em_width * 5.5;
     cx.update_editor(|e, window, cx| {
-        e.scroll(gpui::Point { x: 0., y: 4.5 }, None, ScrollBehavior::Instant, window, cx);
+        e.scroll(
+            gpui::Point { x: 0., y: 4.5 },
+            None,
+            Some(ScrollBehavior::Instant),
+            window,
+            cx,
+        );
     });
     cx.run_until_parked();
     cx.simulate_click(
@@ -34007,7 +34025,13 @@ async fn test_clicking_sticky_header_sets_character_select_mode(cx: &mut TestApp
         editor.end_selection(window, cx);
 
         // Scroll down one row to make `fn foo() {` a sticky header
-        editor.scroll(gpui::Point { x: 0., y: 1. }, None, ScrollBehavior::Instant, window, cx);
+        editor.scroll(
+            gpui::Point { x: 0., y: 1. },
+            None,
+            Some(ScrollBehavior::Instant),
+            window,
+            cx,
+        );
     });
     cx.run_until_parked();
 
