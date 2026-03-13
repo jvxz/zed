@@ -7935,6 +7935,7 @@ impl EditorElement {
                                 editor
                                     .scroll_manager
                                     .scroll_animation()
+                                    .filter(|animation| animation.is_animating())
                                     .map(|animation| animation.target_position())
                                     .unwrap_or(current_scroll_position)
                             };
