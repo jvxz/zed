@@ -245,6 +245,8 @@ impl VsCodeSettings {
                 "solid" => Some(false),
                 _ => None,
             }),
+            smooth_cursor: None,
+            smooth_cursor_style: None,
             cursor_shape: self.read_enum("editor.cursorStyle", |s| match s {
                 "block" => Some(CursorShape::Block),
                 "block-outline" => Some(CursorShape::Hollow),
