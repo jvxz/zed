@@ -61,8 +61,8 @@ if [ "$cargo_bundle_version" != "cargo-bundle v0.6.1-zed" ]; then
     cargo install cargo-bundle --git https://github.com/zed-industries/cargo-bundle.git --branch zed-deploy
 fi
 
-# Deal with versions of macOS that don't include libstdc++ headers
-export CXXFLAGS="-stdlib=libc++"
+# macOS builds use libc++; preserve CXXFLAGS so CI can add -std=c++17 (Apple Clang 15 + cxx / webrtc-sys — cxx#1574).
+export CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }-stdlib=libc++"
 
 version_info=$(rustc --version --verbose)
 host_line=$(echo "$version_info" | grep host)
