@@ -8,9 +8,11 @@ on:
     branches:
       - main
 
+# cancel-in-progress: skipped so a superseded run is not cancelled before rust-cache's post step
+# saves (GitHub skips post steps on cancellation, losing partial compile caches).
 concurrency:
   group: fork-build-mac-${{ github.repository }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -45,6 +47,12 @@ jobs:
         uses: swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6
         with:
           shared-key: fork-mac-aarch64
+          # Save registry + target even when bundle-mac or later steps fail (post step runs on failure).
+          cache-on-failure: true
+          # Workspace crates are the expensive part of this repo; include them in target cache.
+          cache-workspace-crates: true
+          # Bust cache when C++ flags change (e.g. webrtc-sys / libc++ workarounds).
+          env-vars: CXXFLAGS
 
       - name: Node (dmg-license)
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
