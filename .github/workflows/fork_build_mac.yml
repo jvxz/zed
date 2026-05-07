@@ -1,0 +1,65 @@
+# Builds an unsigned/ad-hoc-signed Apple-silicon DMG for fork maintainers.
+# Scoped to https://github.com/jvxz/zed — enable Actions on the fork, then run manually or push.
+name: Fork build (macOS aarch64)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: fork-build-mac-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: write
+  actions: write
+
+jobs:
+  bundle_mac_aarch64:
+    if: github.repository == 'jvxz/zed'
+    runs-on: macos-14
+    timeout-minutes: 180
+    env:
+      CARGO_TERM_COLOR: always
+      RUST_BACKTRACE: "1"
+      # Unsigned fork build: bundle-mac strips associated-domains and ad-hoc-signs when Apple secrets are absent.
+      MACOS_SIGNING_KEY: "-"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          clean: false
+
+      - name: Rust toolchain
+        uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9
+
+      - name: rust-cache
+        uses: swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6
+        with:
+          shared-key: fork-mac-aarch64
+
+      - name: Node (dmg-license)
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "20"
+
+      - name: Bundle macOS (aarch64)
+        run: ./script/bundle-mac aarch64-apple-darwin
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: Zed-aarch64-fork
+          path: target/aarch64-apple-darwin/release/Zed-aarch64.dmg
+          if-no-files-found: error
+
+      - name: Upload remote server
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: zed-remote-server-macos-aarch64.gz
+          path: target/zed-remote-server-macos-aarch64.gz
+          if-no-files-found: warn
