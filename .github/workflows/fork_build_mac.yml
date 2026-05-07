@@ -15,7 +15,6 @@ concurrency:
 permissions:
   contents: read
   actions: write
-  actions: write
 
 jobs:
   bundle_mac_aarch64:
