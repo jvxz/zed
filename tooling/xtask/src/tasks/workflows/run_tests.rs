@@ -526,6 +526,7 @@ pub(crate) fn clippy(platform: Platform, arch: Option<Arch>) -> NamedJob {
     };
     let mut job = release_job(&[])
         .runs_on(runner)
+        .when(platform == Platform::Mac, steps::macos_cxx_libcxx_workaround)
         .add_step(steps::checkout_repo())
         .add_step(steps::setup_cargo_config(platform))
         .when(
@@ -570,6 +571,7 @@ fn run_platform_tests_impl(platform: Platform, filter_packages: bool) -> NamedJo
         name: format!("run_tests_{platform}"),
         job: release_job(&[])
             .runs_on(runner)
+            .when(platform == Platform::Mac, steps::macos_cxx_libcxx_workaround)
             .when(platform == Platform::Linux, |job| {
                 job.add_service(
                     "postgres",
@@ -622,8 +624,9 @@ fn build_visual_tests_binary() -> NamedJob {
     }
 
     named::job(
-        Job::default()
-            .runs_on(runners::MAC_DEFAULT)
+        steps::macos_cxx_libcxx_workaround(
+            Job::default().runs_on(runners::MAC_DEFAULT),
+        )
             .add_step(steps::checkout_repo())
             .add_step(steps::setup_cargo_config(Platform::Mac))
             .add_step(steps::cache_rust_dependencies_namespace())

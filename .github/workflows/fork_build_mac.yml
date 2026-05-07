@@ -24,6 +24,8 @@ jobs:
     env:
       CARGO_TERM_COLOR: always
       RUST_BACKTRACE: "1"
+      # Apple Clang 15 libc++ + cxx C++20 (webrtc-sys): https://github.com/dtolnay/cxx/issues/1574
+      CXXFLAGS: -std=c++17
       # Unsigned fork build: bundle-mac strips associated-domains and ad-hoc-signs when Apple secrets are absent.
       MACOS_SIGNING_KEY: "-"
 

@@ -364,6 +364,13 @@ pub(crate) fn release_job(deps: &[&NamedJob]) -> Job {
         .timeout_minutes(60u32)
 }
 
+/// Apple Clang 15 libc++ fails cxx's C++20 `contiguous_iterator` checks for `rust::Slice::iterator`
+/// (see https://github.com/dtolnay/cxx/issues/1574). `cc` applies `CXXFLAGS` after build-script flags,
+/// so this overrides `webrtc-sys`'s `-std=c++20` without forking dependencies.
+pub(crate) fn macos_cxx_libcxx_workaround(job: Job) -> Job {
+    job.add_env(Env::new("CXXFLAGS", "-std=c++17"))
+}
+
 pub(crate) fn dependant_job(deps: &[&NamedJob]) -> Job {
     let job = Job::default();
     if deps.len() > 0 {

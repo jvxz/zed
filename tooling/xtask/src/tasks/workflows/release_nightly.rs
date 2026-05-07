@@ -70,8 +70,9 @@ pub fn release_nightly() -> Workflow {
 }
 
 fn check_style() -> NamedJob {
-    let job = release_job(&[])
-        .runs_on(runners::MAC_DEFAULT)
+    let job = steps::macos_cxx_libcxx_workaround(
+        release_job(&[]).runs_on(runners::MAC_DEFAULT),
+    )
         .add_step(steps::checkout_repo().with_full_history())
         .add_step(steps::cargo_fmt())
         .add_step(steps::script("./script/clippy"));

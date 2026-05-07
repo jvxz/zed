@@ -69,6 +69,7 @@ pub fn bundle_envs(platform: Platform) -> Env {
     match platform {
         Platform::Linux => env,
         Platform::Mac => env
+            .add("CXXFLAGS", "-std=c++17")
             .add("MACOS_CERTIFICATE", MACOS_CERTIFICATE)
             .add("MACOS_CERTIFICATE_PASSWORD", MACOS_CERTIFICATE_PASSWORD)
             .add("APPLE_NOTARIZATION_KEY", APPLE_NOTARIZATION_KEY)

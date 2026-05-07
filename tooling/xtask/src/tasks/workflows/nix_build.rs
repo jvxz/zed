@@ -93,6 +93,10 @@ pub(crate) fn build_nix(
         job = job.needs(deps.iter().map(|d| d.name.clone()).collect::<Vec<String>>());
     }
 
+    if platform == Platform::Mac {
+        job = steps::macos_cxx_libcxx_workaround(job);
+    }
+
     // On Linux, `cache: nix` uses bind-mounts so the /nix store is available
     // before install-nix-action runs — no extra steps needed.
     //
