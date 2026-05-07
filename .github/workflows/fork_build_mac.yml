@@ -35,6 +35,9 @@ jobs:
 
       - name: Rust toolchain
         uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9
+        with:
+          # Keep aligned with `[toolchain] channel` in rust-toolchain.toml
+          toolchain: "1.95.0"
 
       - name: rust-cache
         uses: swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6
