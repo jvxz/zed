@@ -187,7 +187,7 @@ impl CommitModal {
 
             cx.new(|cx| {
                 let mut editor =
-                    commit_message_editor(buffer, None, project.clone(), false, window, cx);
+                    commit_message_editor(buffer, None, project.clone(), false, 0, 0, window, cx);
                 editor.sync_selections(panel_editor, cx).detach();
 
                 editor

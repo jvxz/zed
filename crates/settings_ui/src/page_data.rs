@@ -5550,7 +5550,7 @@ fn panels_page() -> SettingsPage {
         ]
     }
 
-    fn git_panel_section() -> [SettingsPageItem; 15] {
+    fn git_panel_section() -> [SettingsPageItem; 24] {
         [
             SettingsPageItem::SectionHeader("Git Panel"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -5592,6 +5592,28 @@ fn panels_page() -> SettingsPage {
                             .git_panel
                             .get_or_insert_default()
                             .default_width = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Show Header Controls",
+                description: "Show the top changes count, overflow, and stage-all controls in the Git panel.",
+                field: Box::new(SettingField {
+                    json_path: Some("git_panel.show_header_controls"),
+                    pick: |settings_content| {
+                        settings_content
+                            .git_panel
+                            .as_ref()?
+                            .show_header_controls
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .git_panel
+                            .get_or_insert_default()
+                            .show_header_controls = value;
                     },
                 }),
                 metadata: None,
@@ -5785,6 +5807,182 @@ fn panels_page() -> SettingsPage {
                             .git_panel
                             .get_or_insert_default()
                             .commit_title_max_length = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Commit Editor Position",
+                description: "Place the commit message editor at the top or bottom of the Git panel.",
+                field: Box::new(SettingField {
+                    json_path: Some("git_panel.commit_editor_position"),
+                    pick: |settings_content| {
+                        settings_content
+                            .git_panel
+                            .as_ref()?
+                            .commit_editor_position
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .git_panel
+                            .get_or_insert_default()
+                            .commit_editor_position = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Commit Button Style",
+                description: "Full-width commit control or compact split button.",
+                field: Box::new(SettingField {
+                    json_path: Some("git_panel.commit_button_style"),
+                    pick: |settings_content| {
+                        settings_content
+                            .git_panel
+                            .as_ref()?
+                            .commit_button_style
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .git_panel
+                            .get_or_insert_default()
+                            .commit_button_style = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Commit Editor Min Lines",
+                description: "Minimum visible lines for the in-panel commit message editor.",
+                field: Box::new(SettingField {
+                    json_path: Some("git_panel.commit_editor_min_lines"),
+                    pick: |settings_content| {
+                        settings_content
+                            .git_panel
+                            .as_ref()?
+                            .commit_editor_min_lines
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .git_panel
+                            .get_or_insert_default()
+                            .commit_editor_min_lines = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Commit Editor Max Lines",
+                description: "Maximum visible lines for the in-panel commit message editor.",
+                field: Box::new(SettingField {
+                    json_path: Some("git_panel.commit_editor_max_lines"),
+                    pick: |settings_content| {
+                        settings_content
+                            .git_panel
+                            .as_ref()?
+                            .commit_editor_max_lines
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .git_panel
+                            .get_or_insert_default()
+                            .commit_editor_max_lines = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Show Commit Editor",
+                description: "Whether to show the commit message editor in the Git panel.",
+                field: Box::new(SettingField {
+                    json_path: Some("git_panel.show_commit_editor"),
+                    pick: |settings_content| {
+                        settings_content
+                            .git_panel
+                            .as_ref()?
+                            .show_commit_editor
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .git_panel
+                            .get_or_insert_default()
+                            .show_commit_editor = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Show Previous Commit",
+                description: "Whether to show the most recent commit row in the Git panel.",
+                field: Box::new(SettingField {
+                    json_path: Some("git_panel.show_previous_commit"),
+                    pick: |settings_content| {
+                        settings_content
+                            .git_panel
+                            .as_ref()?
+                            .show_previous_commit
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .git_panel
+                            .get_or_insert_default()
+                            .show_previous_commit = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Repository Bar Position",
+                description: "Where to show the repository and branch controls in the Git panel.",
+                field: Box::new(SettingField {
+                    json_path: Some("git_panel.repository_footer_position"),
+                    pick: |settings_content| {
+                        settings_content
+                            .git_panel
+                            .as_ref()?
+                            .repository_footer_position
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .git_panel
+                            .get_or_insert_default()
+                            .repository_footer_position = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Change Section Style",
+                description: "Group files like Zed (Tracked/Untracked) or like VS Code (Staged/Changes).",
+                field: Box::new(SettingField {
+                    json_path: Some("git_panel.change_section_style"),
+                    pick: |settings_content| {
+                        settings_content
+                            .git_panel
+                            .as_ref()?
+                            .change_section_style
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .git_panel
+                            .get_or_insert_default()
+                            .change_section_style = value;
                     },
                 }),
                 metadata: None,

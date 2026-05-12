@@ -153,7 +153,7 @@ To disable this behavior use:
 
   // Whether to resize all the panels in a dock when resizing the dock.
   // Can be a combination of "left", "right" and "bottom".
-  "resize_all_panels_in_dock": ["left"]
+  "resize_all_panels_in_dock": ["left", "right"]
 }
 ```
 

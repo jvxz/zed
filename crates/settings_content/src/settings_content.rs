@@ -623,6 +623,96 @@ pub enum DockPosition {
     Right,
 }
 
+/// Where the commit message editor appears in the Git panel.
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    MergeFrom,
+    PartialEq,
+    Eq,
+    strum::VariantArray,
+    strum::VariantNames,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum GitPanelCommitEditorPosition {
+    #[default]
+    Top,
+    Bottom,
+}
+
+/// Visual style for the primary commit control in the Git panel.
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    MergeFrom,
+    PartialEq,
+    Eq,
+    strum::VariantArray,
+    strum::VariantNames,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum GitPanelCommitButtonStyle {
+    #[default]
+    FullWidth,
+    Compact,
+}
+
+/// Where to show the repository / branch bar in the Git panel.
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    MergeFrom,
+    PartialEq,
+    Eq,
+    strum::VariantArray,
+    strum::VariantNames,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum GitPanelRepositoryFooterPosition {
+    Top,
+    #[default]
+    Bottom,
+    Hidden,
+}
+
+/// How the Git panel groups changed files into sections.
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    MergeFrom,
+    PartialEq,
+    Eq,
+    strum::VariantArray,
+    strum::VariantNames,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum GitPanelChangeSectionStyle {
+    Zed,
+    #[default]
+    #[serde(alias = "vscode")]
+    VsCode,
+}
+
 /// Configuration of voice calls in Zed.
 #[with_fallible_options]
 #[derive(Clone, PartialEq, Default, Serialize, Deserialize, JsonSchema, MergeFrom, Debug)]
@@ -711,11 +801,56 @@ pub struct GitPanelSettingsContent {
     /// Default: false
     pub starts_open: Option<bool>,
 
+    /// Whether to show the top changes count, overflow, and stage-all controls in the Git panel.
+    ///
+    /// Default: true
+    pub show_header_controls: Option<bool>,
+
     /// Maximum length of the commit message title before a warning is shown.
     /// Set to 0 to disable.
     ///
     /// Default: 72
     pub commit_title_max_length: Option<usize>,
+
+    /// Where the commit message editor appears in the Git panel.
+    ///
+    /// Default: top
+    pub commit_editor_position: Option<GitPanelCommitEditorPosition>,
+
+    /// Visual style for the commit button (full width vs compact split control).
+    ///
+    /// Default: full_width
+    pub commit_button_style: Option<GitPanelCommitButtonStyle>,
+
+    /// Minimum visible lines for the commit message editor in the panel.
+    ///
+    /// Default: 2
+    pub commit_editor_min_lines: Option<usize>,
+
+    /// Maximum visible lines for the commit message editor in the panel.
+    ///
+    /// Default: 6
+    pub commit_editor_max_lines: Option<usize>,
+
+    /// Whether to show the commit message editor in the Git panel.
+    ///
+    /// Default: true
+    pub show_commit_editor: Option<bool>,
+
+    /// Whether to show the previous-commit row in the Git panel.
+    ///
+    /// Default: true
+    pub show_previous_commit: Option<bool>,
+
+    /// Where to show the repository / branch bar relative to the rest of the panel.
+    ///
+    /// Default: bottom
+    pub repository_footer_position: Option<GitPanelRepositoryFooterPosition>,
+
+    /// How to group changed files into sections (Zed vs VS Code style).
+    ///
+    /// Default: vscode
+    pub change_section_style: Option<GitPanelChangeSectionStyle>,
 }
 
 #[derive(

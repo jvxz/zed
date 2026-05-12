@@ -849,18 +849,71 @@ impl Dock {
     }
 
     pub fn activate_panel(&mut self, panel_ix: usize, window: &mut Window, cx: &mut Context<Self>) {
-        if Some(panel_ix) != self.active_panel_index {
-            if let Some(active_panel) = self.active_panel_entry() {
-                active_panel.panel.set_active(false, window, cx);
-            }
-
-            self.active_panel_index = Some(panel_ix);
-            if let Some(active_panel) = self.active_panel_entry() {
-                active_panel.panel.set_active(true, window, cx);
-            }
-
-            cx.notify();
+        if Some(panel_ix) == self.active_panel_index {
+            return;
         }
+
+        let prior_index = self.active_panel_index;
+        let prior_size_snapshot =
+            (self.position().axis() == Axis::Horizontal).then(|| prior_index).flatten().and_then(
+                |ix| {
+                    self.panel_entries.get(ix).map(|entry| {
+                        (
+                            entry.size_state,
+                            panel_uses_flexible_width(
+                                self.position,
+                                entry.panel.as_ref(),
+                                window,
+                                cx,
+                            ),
+                        )
+                    })
+                },
+            );
+
+        if let Some(active_panel) = self.active_panel_entry() {
+            active_panel.panel.set_active(false, window, cx);
+        }
+
+        self.active_panel_index = Some(panel_ix);
+
+        if let Some((prior_state, prior_uses_flex)) = prior_size_snapshot {
+            if let Some(new_entry) = self.panel_entries.get_mut(panel_ix) {
+                let new_uses_flex = panel_uses_flexible_width(
+                    self.position,
+                    new_entry.panel.as_ref(),
+                    window,
+                    cx,
+                );
+                if prior_uses_flex == new_uses_flex {
+                    new_entry.size_state = prior_state;
+                } else if !new_uses_flex {
+                    new_entry.size_state.size = prior_state.size;
+                    new_entry.size_state.flex = None;
+                } else {
+                    new_entry.size_state.flex = prior_state.flex;
+                    new_entry.size_state.size = prior_state.size;
+                }
+                new_entry.panel.size_state_changed(window, cx);
+
+                let panel_key = new_entry.panel.panel_key();
+                let size_state = new_entry.size_state;
+                let workspace = self.workspace.clone();
+                cx.defer(move |cx| {
+                    if let Some(ws) = workspace.upgrade() {
+                        ws.update(cx, |workspace, cx| {
+                            workspace.persist_panel_size_state(panel_key, size_state, cx);
+                        });
+                    }
+                });
+            }
+        }
+
+        if let Some(active_panel) = self.active_panel_entry() {
+            active_panel.panel.set_active(true, window, cx);
+        }
+
+        cx.notify();
     }
 
     pub fn visible_panel(&self) -> Option<&Arc<dyn PanelHandle>> {

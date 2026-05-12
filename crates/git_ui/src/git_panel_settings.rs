@@ -2,7 +2,10 @@ use editor::{EditorSettings, ui_scrollbar_settings_from_raw};
 use gpui::Pixels;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use settings::{RegisterSetting, Settings, StatusStyle};
+use settings::{
+    GitPanelChangeSectionStyle, GitPanelCommitButtonStyle, GitPanelCommitEditorPosition,
+    GitPanelRepositoryFooterPosition, RegisterSetting, Settings, StatusStyle,
+};
 use ui::{
     px,
     scrollbars::{ScrollbarVisibility, ShowScrollbar},
@@ -30,7 +33,16 @@ pub struct GitPanelSettings {
     pub diff_stats: bool,
     pub show_count_badge: bool,
     pub starts_open: bool,
+    pub show_header_controls: bool,
     pub commit_title_max_length: usize,
+    pub commit_editor_position: GitPanelCommitEditorPosition,
+    pub commit_button_style: GitPanelCommitButtonStyle,
+    pub commit_editor_min_lines: usize,
+    pub commit_editor_max_lines: usize,
+    pub show_commit_editor: bool,
+    pub show_previous_commit: bool,
+    pub repository_footer_position: GitPanelRepositoryFooterPosition,
+    pub change_section_style: GitPanelChangeSectionStyle,
 }
 
 #[derive(Default)]
@@ -77,7 +89,30 @@ impl Settings for GitPanelSettings {
             diff_stats: git_panel.diff_stats.unwrap(),
             show_count_badge: git_panel.show_count_badge.unwrap(),
             starts_open: git_panel.starts_open.unwrap(),
+            show_header_controls: git_panel.show_header_controls.unwrap(),
             commit_title_max_length: git_panel.commit_title_max_length.unwrap(),
+            commit_editor_position: git_panel.commit_editor_position.unwrap(),
+            commit_button_style: git_panel.commit_button_style.unwrap(),
+            commit_editor_min_lines: {
+                let mut min_lines = git_panel.commit_editor_min_lines.unwrap().max(1).min(64);
+                let max_lines = git_panel.commit_editor_max_lines.unwrap().max(1).min(64);
+                if min_lines > max_lines {
+                    min_lines = max_lines;
+                }
+                min_lines
+            },
+            commit_editor_max_lines: {
+                let min_lines = git_panel.commit_editor_min_lines.unwrap().max(1).min(64);
+                let mut max_lines = git_panel.commit_editor_max_lines.unwrap().max(1).min(64);
+                if min_lines > max_lines {
+                    max_lines = min_lines;
+                }
+                max_lines
+            },
+            show_commit_editor: git_panel.show_commit_editor.unwrap(),
+            show_previous_commit: git_panel.show_previous_commit.unwrap(),
+            repository_footer_position: git_panel.repository_footer_position.unwrap(),
+            change_section_style: git_panel.change_section_style.unwrap(),
         }
     }
 }

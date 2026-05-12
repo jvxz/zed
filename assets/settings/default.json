@@ -762,7 +762,7 @@
   },
   // Whether to resize all the panels in a dock when resizing the dock.
   // Can be a combination of "left", "right" and "bottom".
-  "resize_all_panels_in_dock": ["left"],
+  "resize_all_panels_in_dock": ["left", "right"],
   "project_panel": {
     // Whether to show the project panel button in the status bar
     "button": true,
@@ -984,6 +984,10 @@
     //
     // Default: false
     "starts_open": false,
+    // Whether to show the top changes count, overflow, and stage-all controls in the Git panel.
+    //
+    // Default: true
+    "show_header_controls": true,
     // Whether to show a badge on the git panel icon with the count of uncommitted changes.
     //
     // Default: true
@@ -1004,6 +1008,42 @@
     //
     // Default: 72
     "commit_title_max_length": 72,
+    // Where the commit message editor appears in the Git panel.
+    //
+    // Choices: top, bottom
+    // Default: top
+    "commit_editor_position": "top",
+    // Visual style for the commit button.
+    //
+    // Choices: full_width, compact
+    // Default: full_width
+    "commit_button_style": "full_width",
+    // Minimum visible lines for the commit message editor in the panel.
+    //
+    // Default: 2
+    "commit_editor_min_lines": 2,
+    // Maximum visible lines for the commit message editor in the panel.
+    //
+    // Default: 6
+    "commit_editor_max_lines": 6,
+    // Whether to show the commit message editor in the Git panel.
+    //
+    // Default: true
+    "show_commit_editor": true,
+    // Whether to show the previous-commit row in the Git panel.
+    //
+    // Default: true
+    "show_previous_commit": true,
+    // Where to show the repository / branch bar.
+    //
+    // Choices: top, bottom, hidden
+    // Default: bottom
+    "repository_footer_position": "bottom",
+    // How to group changed files in the Git panel.
+    //
+    // Choices: zed, vscode
+    // Default: vscode
+    "change_section_style": "vscode",
   },
   "message_editor": {
     // Whether to automatically replace emoji shortcodes with emoji characters.

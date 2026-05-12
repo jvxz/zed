@@ -104,7 +104,7 @@ pub struct WorkspaceSettingsContent {
     pub on_last_window_closed: Option<OnLastWindowClosed>,
     /// Whether to resize all the panels in a dock when resizing the dock.
     ///
-    /// Default: ["left"]
+    /// Default: ["left", "right"]
     pub resize_all_panels_in_dock: Option<Vec<DockPosition>>,
     /// Whether to automatically close files that have been deleted on disk.
     ///
