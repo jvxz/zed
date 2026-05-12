@@ -4347,9 +4347,60 @@ fn window_and_layout_page() -> SettingsPage {
         ]
     }
 
-    fn layout_section() -> [SettingsPageItem; 6] {
+    fn layout_section() -> [SettingsPageItem; 8] {
         [
             SettingsPageItem::SectionHeader("Layout"),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Activity Bar Side",
+                description: "Which side of the window the activity bar appears on.",
+                field: Box::new(SettingField {
+                    json_path: Some("activity_bar.side"),
+                    pick: |settings_content| {
+                        settings_content
+                            .workspace
+                            .activity_bar
+                            .as_ref()?
+                            .side
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .workspace
+                            .activity_bar
+                            .get_or_insert_default()
+                            .side = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Activity Bar Items",
+                description: "Ordered activity bar entries. Use built-in ids (`project_panel`, `git_panel`) or JSON objects `{ \"action\": \"namespace::MyAction\", \"icon\": \"bolt_filled\", \"tooltip\": \"...\" }` where `icon` is an IconName variant in snake_case.",
+                field: Box::new(
+                    SettingField {
+                        json_path: Some("activity_bar.items"),
+                        pick: |settings_content| {
+                            settings_content
+                                .workspace
+                                .activity_bar
+                                .as_ref()?
+                                .items
+                                .as_ref()
+                        },
+                        write: |settings_content, value, _| {
+                            settings_content
+                                .workspace
+                                .activity_bar
+                                .get_or_insert_default()
+                                .items = value;
+                        },
+                    }
+                    .unimplemented(),
+                ),
+                metadata: None,
+                files: USER,
+            }),
             SettingsPageItem::SettingItem(SettingItem {
                 title: "Bottom Dock Layout",
                 description: "Layout mode for the bottom dock.",

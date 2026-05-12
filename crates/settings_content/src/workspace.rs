@@ -15,6 +15,8 @@ use crate::{
 pub struct WorkspaceSettingsContent {
     /// Active pane styling settings.
     pub active_pane_modifiers: Option<ActivePaneModifiers>,
+    /// Activity bar settings.
+    pub activity_bar: Option<ActivityBarSettingsContent>,
     /// The text rendering mode to use.
     ///
     /// Default: platform_default
@@ -130,6 +132,89 @@ pub struct WorkspaceSettingsContent {
     /// Whether the focused panel follows the mouse location
     /// Default: false
     pub focus_follows_mouse: Option<FocusFollowsMouse>,
+}
+
+#[with_fallible_options]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema, MergeFrom)]
+pub struct ActivityBarSettingsContent {
+    /// Which side of the window the activity bar appears on.
+    ///
+    /// Default: left
+    pub side: Option<ActivityBarSide>,
+    /// Ordered list of activity bar items.
+    ///
+    /// Each entry is either a built-in id (`project_panel`, `git_panel`) or an
+    /// object: `{ "action": "namespace::ActionName", "icon": "bolt_filled", "tooltip": "Optional" }`.
+    ///
+    /// `icon` matches the `IconName` set (`snake_case`, e.g. `bolt_filled`).
+    ///
+    /// Default: ["project_panel", "git_panel"]
+    pub items: Option<Vec<ActivityBarItem>>,
+}
+
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    PartialEq,
+    Eq,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    MergeFrom,
+    strum::VariantArray,
+    strum::VariantNames,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum ActivityBarSide {
+    #[default]
+    Left,
+    Right,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema, MergeFrom)]
+#[serde(untagged)]
+pub enum ActivityBarItem {
+    Builtin(ActivityBarBuiltin),
+    Custom(ActivityBarCustomItem),
+}
+
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    PartialEq,
+    Eq,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    MergeFrom,
+    strum::VariantArray,
+    strum::VariantNames,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum ActivityBarBuiltin {
+    ProjectPanel,
+    GitPanel,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema, MergeFrom)]
+pub struct ActivityBarCustomItem {
+    pub action: ActionName,
+    /// Icon variant (`IconName` string in `snake_case`, for example `bolt_filled`).
+    pub icon: String,
+    #[serde(default)]
+    pub tooltip: Option<String>,
+}
+
+impl ActivityBarBuiltin {
+    pub fn panel_key(self) -> &'static str {
+        match self {
+            Self::ProjectPanel => "ProjectPanel",
+            Self::GitPanel => "GitPanel",
+        }
+    }
 }
 
 #[with_fallible_options]

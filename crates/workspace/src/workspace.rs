@@ -1,4 +1,5 @@
 pub mod active_file_name;
+mod activity_bar;
 pub mod dock;
 pub mod history_manager;
 pub mod invalid_item_view;
@@ -152,8 +153,9 @@ use util::{
 };
 use uuid::Uuid;
 pub use workspace_settings::{
-    AutosaveSetting, BottomDockLayout, EncodingDisplayOptions, FocusFollowsMouse,
-    RestoreOnStartupBehavior, StatusBarSettings, TabBarSettings, WorkspaceSettings,
+    ActivityBarSettings, AutosaveSetting, BottomDockLayout, EncodingDisplayOptions,
+    FocusFollowsMouse, RestoreOnStartupBehavior, StatusBarSettings, TabBarSettings,
+    WorkspaceSettings,
 };
 use zed_actions::{Spawn, feedback::FileBugReport, theme::ToggleMode};
 
@@ -1364,6 +1366,7 @@ pub struct Workspace {
     pub(crate) modal_layer: Entity<ModalLayer>,
     toast_layer: Entity<ToastLayer>,
     titlebar_item: Option<AnyView>,
+    activity_bar_overlay_side: Option<settings::ActivityBarSide>,
     notifications: Notifications,
     suppressed_notifications: HashSet<NotificationId>,
     project: Entity<Project>,
@@ -1710,7 +1713,6 @@ impl Workspace {
         let left_dock = Dock::new(DockPosition::Left, modal_layer.clone(), window, cx);
         let bottom_dock = Dock::new(DockPosition::Bottom, modal_layer.clone(), window, cx);
         let right_dock = Dock::new(DockPosition::Right, modal_layer.clone(), window, cx);
-        let left_dock_buttons = cx.new(|cx| PanelButtons::new(left_dock.clone(), cx));
         let bottom_dock_buttons = cx.new(|cx| PanelButtons::new(bottom_dock.clone(), cx));
         let right_dock_buttons = cx.new(|cx| PanelButtons::new(right_dock.clone(), cx));
         let multi_workspace = window
@@ -1720,7 +1722,6 @@ impl Workspace {
         let status_bar = cx.new(|cx| {
             let mut status_bar =
                 StatusBar::new(&center_pane.clone(), multi_workspace.clone(), window, cx);
-            status_bar.add_left_item(left_dock_buttons, window, cx);
             status_bar.add_right_item(right_dock_buttons, window, cx);
             status_bar.add_right_item(bottom_dock_buttons, window, cx);
             status_bar
@@ -1804,6 +1805,7 @@ impl Workspace {
             modal_layer,
             toast_layer,
             titlebar_item: None,
+            activity_bar_overlay_side: None,
             notifications: Notifications::default(),
             suppressed_notifications: HashSet::default(),
             left_dock,
@@ -2923,6 +2925,17 @@ impl Workspace {
     pub fn set_titlebar_item(&mut self, item: AnyView, _: &mut Window, cx: &mut Context<Self>) {
         self.titlebar_item = Some(item);
         cx.notify();
+    }
+
+    pub(crate) fn set_activity_bar_overlay_side(
+        &mut self,
+        side: Option<settings::ActivityBarSide>,
+        cx: &mut Context<Self>,
+    ) {
+        if self.activity_bar_overlay_side != side {
+            self.activity_bar_overlay_side = side;
+            cx.notify();
+        }
     }
 
     pub fn set_prompt_for_new_path(&mut self, prompt: PromptForNewPath) {
@@ -8461,6 +8474,14 @@ impl Render for Workspace {
                     .flex_1()
                     .flex()
                     .flex_col()
+                    .when(
+                        self.activity_bar_overlay_side == Some(settings::ActivityBarSide::Left),
+                        |this| this.pl(crate::activity_bar::ACTIVITY_BAR_WIDTH),
+                    )
+                    .when(
+                        self.activity_bar_overlay_side == Some(settings::ActivityBarSide::Right),
+                        |this| this.pr(crate::activity_bar::ACTIVITY_BAR_WIDTH),
+                    )
                     .child(
                         div()
                             .id("workspace")

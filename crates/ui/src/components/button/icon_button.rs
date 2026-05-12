@@ -57,6 +57,11 @@ impl IconButton {
         self
     }
 
+    pub fn height(mut self, height: DefiniteLength) -> Self {
+        self.base = self.base.height(height);
+        self
+    }
+
     pub fn icon_color(mut self, icon_color: Color) -> Self {
         self.icon_color = icon_color;
         self

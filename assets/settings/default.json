@@ -81,6 +81,16 @@
     // Values are clamped to the [0.0, 1.0] range.
     "inactive_opacity": 1.0,
   },
+  // Controls the VS Code-style activity bar.
+  "activity_bar": {
+    // Which side of the window the activity bar appears on.
+    //   choices: left, right
+    "side": "left",
+    // Ordered entries: `"project_panel"`, `"git_panel"`, and/or `{ "action": "...",
+    // "icon": "bolt_filled", "tooltip": "Optional" }` (icon matches IconName, snake_case).
+    //   choices: project_panel, git_panel
+    "items": ["project_panel", "git_panel"],
+  },
   // Layout mode of the bottom dock. Defaults to "contained"
   //   choices: contained, full, left_aligned, right_aligned
   "bottom_dock_layout": "contained",
@@ -976,8 +986,8 @@
     "starts_open": false,
     // Whether to show a badge on the git panel icon with the count of uncommitted changes.
     //
-    // Default: false
-    "show_count_badge": false,
+    // Default: true
+    "show_count_badge": true,
     "scrollbar": {
       // When to show the scrollbar in the git panel.
       //

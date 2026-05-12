@@ -21920,6 +21920,7 @@ dependencies = [
  "git",
  "gpui",
  "http_client",
+ "icons",
  "itertools 0.14.0",
  "language",
  "log",

@@ -4,14 +4,15 @@ use crate::DockPosition;
 use collections::HashMap;
 use serde::Deserialize;
 pub use settings::{
-    ActionName, AutosaveSetting, BottomDockLayout, EncodingDisplayOptions, InactiveOpacity,
-    PaneSplitDirectionHorizontal, PaneSplitDirectionVertical, RegisterSetting,
-    RestoreOnStartupBehavior, Settings,
+    ActionName, ActivityBarItem, ActivityBarSide, AutosaveSetting, BottomDockLayout,
+    EncodingDisplayOptions, InactiveOpacity, PaneSplitDirectionHorizontal,
+    PaneSplitDirectionVertical, RegisterSetting, RestoreOnStartupBehavior, Settings,
 };
 
 #[derive(RegisterSetting)]
 pub struct WorkspaceSettings {
     pub active_pane_modifiers: ActivePanelModifiers,
+    pub activity_bar: ActivityBarSettings,
     pub bottom_dock_layout: settings::BottomDockLayout,
     pub pane_split_direction_horizontal: settings::PaneSplitDirectionHorizontal,
     pub pane_split_direction_vertical: settings::PaneSplitDirectionVertical,
@@ -37,6 +38,12 @@ pub struct WorkspaceSettings {
     pub zoomed_padding: bool,
     pub window_decorations: settings::WindowDecorations,
     pub focus_follows_mouse: FocusFollowsMouse,
+}
+
+#[derive(Clone, Deserialize)]
+pub struct ActivityBarSettings {
+    pub side: ActivityBarSide,
+    pub items: Vec<ActivityBarItem>,
 }
 
 #[derive(Copy, Clone, Deserialize)]
@@ -91,6 +98,10 @@ impl Settings for WorkspaceSettings {
                         .inactive_opacity
                         .unwrap(),
                 ),
+            },
+            activity_bar: ActivityBarSettings {
+                side: workspace.activity_bar.clone().unwrap().side.unwrap(),
+                items: workspace.activity_bar.clone().unwrap().items.unwrap(),
             },
             bottom_dock_layout: workspace.bottom_dock_layout.unwrap(),
             pane_split_direction_horizontal: workspace.pane_split_direction_horizontal.unwrap(),
@@ -173,5 +184,52 @@ impl Settings for StatusBarSettings {
             line_endings_button: status_bar.line_endings_button.unwrap(),
             active_encoding_button: status_bar.active_encoding_button.unwrap(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use settings::{ActivityBarBuiltin, ActivityBarItem, ActivityBarSide};
+
+    #[test]
+    fn activity_bar_defaults_to_left_with_project_and_git() {
+        let content: settings::SettingsContent =
+            settings::parse_json_with_comments(settings::default_settings().as_ref()).unwrap();
+
+        let settings = WorkspaceSettings::from_settings(&content);
+
+        assert_eq!(settings.activity_bar.side, ActivityBarSide::Left);
+        assert_eq!(
+            settings.activity_bar.items,
+            vec![
+                ActivityBarItem::Builtin(ActivityBarBuiltin::ProjectPanel),
+                ActivityBarItem::Builtin(ActivityBarBuiltin::GitPanel),
+            ]
+        );
+    }
+
+    #[test]
+    fn activity_bar_settings_preserve_side_and_order() {
+        let mut content: settings::SettingsContent =
+            settings::parse_json_with_comments(settings::default_settings().as_ref()).unwrap();
+
+        let activity_bar = content.workspace.activity_bar.as_mut().unwrap();
+        activity_bar.side = Some(ActivityBarSide::Right);
+        activity_bar.items = Some(vec![
+            ActivityBarItem::Builtin(ActivityBarBuiltin::GitPanel),
+            ActivityBarItem::Builtin(ActivityBarBuiltin::ProjectPanel),
+        ]);
+
+        let settings = WorkspaceSettings::from_settings(&content);
+
+        assert_eq!(settings.activity_bar.side, ActivityBarSide::Right);
+        assert_eq!(
+            settings.activity_bar.items,
+            vec![
+                ActivityBarItem::Builtin(ActivityBarBuiltin::GitPanel),
+                ActivityBarItem::Builtin(ActivityBarBuiltin::ProjectPanel),
+            ]
+        );
     }
 }

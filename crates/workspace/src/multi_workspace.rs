@@ -2,9 +2,9 @@ use anyhow::Result;
 use fs::Fs;
 
 use gpui::{
-    AnyView, App, Context, DragMoveEvent, Entity, EntityId, EventEmitter, FocusHandle, Focusable,
-    ManagedView, MouseButton, Pixels, Render, Subscription, Task, TaskExt, Tiling, WeakEntity,
-    Window, WindowId, actions, deferred, px,
+    AnyElement, AnyView, App, Context, DragMoveEvent, Entity, EntityId, EventEmitter, FocusHandle,
+    Focusable, ManagedView, MouseButton, Pixels, Render, Subscription, Task, TaskExt, Tiling,
+    WeakEntity, Window, WindowId, actions, deferred, px,
 };
 pub use project::ProjectGroupKey;
 use project::{DisableAiSettings, Project};
@@ -25,6 +25,7 @@ use ui::{ContextMenu, right_click_menu};
 
 const SIDEBAR_RESIZE_HANDLE_SIZE: Pixels = px(6.0);
 
+use crate::activity_bar::ActivityBar;
 use crate::open_remote_project_with_existing_connection;
 use crate::{
     CloseIntent, CloseWindow, DockPosition, Event as WorkspaceEvent, Item, ModalView, OpenMode,
@@ -288,6 +289,7 @@ pub struct MultiWorkspace {
     retained_workspaces: Vec<Entity<Workspace>>,
     project_groups: Vec<ProjectGroupState>,
     active_workspace: Entity<Workspace>,
+    activity_bar: Entity<ActivityBar>,
     sidebar: Option<Box<dyn SidebarHandle>>,
     sidebar_open: bool,
     sidebar_overlay: Option<AnyView>,
@@ -340,11 +342,13 @@ impl MultiWorkspace {
         workspace.update(cx, |workspace, cx| {
             workspace.set_multi_workspace(weak_self, cx);
         });
+        let activity_bar = cx.new(|cx| ActivityBar::new(workspace.clone(), window, cx));
         Self {
             window_id: window.window_handle().window_id(),
             retained_workspaces: Vec::new(),
             project_groups: Vec::new(),
             active_workspace: workspace,
+            activity_bar,
             sidebar: None,
             sidebar_open: false,
             sidebar_overlay: None,
@@ -2015,6 +2019,30 @@ impl Render for MultiWorkspace {
         let multi_workspace_enabled = self.multi_workspace_enabled(cx);
         let sidebar_side = self.sidebar_side(cx);
         let sidebar_on_right = sidebar_side == SidebarSide::Right;
+        let activity_bar_side = ActivityBar::side(cx);
+        let activity_bar_on_right = activity_bar_side == settings::ActivityBarSide::Right;
+        let activity_bar_sidebar_same_side_conflict = multi_workspace_enabled
+            && self.sidebar_open()
+            && (sidebar_on_right == activity_bar_on_right);
+
+        let activity_overlay_layout =
+            ActivityBar::has_items(cx) && !activity_bar_sidebar_same_side_conflict;
+
+        let current_workspace = self.workspace().clone();
+        current_workspace.update(cx, |workspace, cx| {
+            workspace.set_activity_bar_overlay_side(activity_overlay_layout.then_some(activity_bar_side), cx);
+        });
+        self.activity_bar.update(cx, |activity_bar, cx| {
+            activity_bar.set_workspace(current_workspace, cx);
+            activity_bar.set_overlay_layout(activity_overlay_layout, cx);
+        });
+
+        let left_activity_bar = (!activity_overlay_layout
+            && !activity_bar_on_right
+            && ActivityBar::has_items(cx))
+            .then(|| self.activity_bar.clone().into_any_element());
+        let right_activity_bar = (!activity_overlay_layout && activity_bar_on_right && ActivityBar::has_items(cx))
+            .then(|| self.activity_bar.clone().into_any_element());
 
         let sidebar: Option<AnyElement> = if multi_workspace_enabled && self.sidebar_open() {
             self.sidebar.as_ref().map(|sidebar_handle| {
@@ -2174,16 +2202,42 @@ impl Render for MultiWorkspace {
                         ))
                     },
                 )
-                .children(left_sidebar)
-                .child(
-                    div()
+                .child({
+                    let workspace_column = div()
                         .flex()
                         .flex_1()
                         .size_full()
                         .overflow_hidden()
-                        .child(self.workspace().clone()),
-                )
-                .children(right_sidebar)
+                        .child(self.workspace().clone());
+
+                    let mut row = div()
+                        .relative()
+                        .flex_1()
+                        .size_full()
+                        .flex()
+                        .flex_row()
+                        .min_w(px(0.));
+
+                    if activity_overlay_layout {
+                        row = row
+                            .children(left_sidebar)
+                            .child(workspace_column)
+                            .children(right_sidebar)
+                            .child(self.activity_bar.clone());
+                    } else {
+                        if let Some(activity) = left_activity_bar {
+                            row = row.child(activity);
+                        }
+                        row = row
+                            .children(left_sidebar)
+                            .child(workspace_column)
+                            .children(right_sidebar);
+                        if let Some(activity) = right_activity_bar {
+                            row = row.child(activity);
+                        }
+                    }
+                    row
+                })
                 .child(self.workspace().read(cx).modal_layer.clone())
                 .children(self.sidebar_overlay.as_ref().map(|view| {
                     deferred(div().absolute().size_full().inset_0().occlude().child(
@@ -2201,8 +2255,10 @@ impl Render for MultiWorkspace {
             window,
             cx,
             Tiling {
-                left: !sidebar_on_right && multi_workspace_enabled && self.sidebar_open(),
-                right: sidebar_on_right && multi_workspace_enabled && self.sidebar_open(),
+                left: (!sidebar_on_right && multi_workspace_enabled && self.sidebar_open())
+                    || !activity_bar_on_right,
+                right: (sidebar_on_right && multi_workspace_enabled && self.sidebar_open())
+                    || activity_bar_on_right,
                 ..Tiling::default()
             },
         )

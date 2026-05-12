@@ -91,3 +91,52 @@ impl Component for CountBadge {
         )
     }
 }
+
+/// Git / numeric count badge styled for the activity bar: accent fill with text matched to the bar surface.
+#[derive(IntoElement)]
+pub struct AccentActivityBarCountBadge {
+    count: usize,
+}
+
+impl AccentActivityBarCountBadge {
+    pub fn new(count: usize) -> Self {
+        Self { count }
+    }
+}
+
+impl RenderOnce for AccentActivityBarCountBadge {
+    fn render(self, _window: &mut Window, cx: &mut App) -> impl IntoElement {
+        let label = if self.count > 99 {
+            "99+".to_string()
+        } else {
+            self.count.to_string()
+        };
+
+        let bar_fill = cx.theme().colors().text_accent;
+        let badge_text_color = cx
+            .theme()
+            .colors()
+            .title_bar_background
+            .blend(cx.theme().colors().panel_background.opacity(0.25));
+
+        h_flex()
+            .absolute()
+            .top_0()
+            .right_0()
+            .p_px()
+            .h_3p5()
+            .min_w_3p5()
+            .rounded_full()
+            .justify_center()
+            .text_center()
+            .border_1()
+            .border_color(bar_fill)
+            .bg(bar_fill)
+            .child(
+                Label::new(label)
+                    .size(LabelSize::Custom(rems_from_px(9.)))
+                    .weight(FontWeight::MEDIUM)
+                    .color(Color::Custom(badge_text_color)),
+            )
+    }
+}
