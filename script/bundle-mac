@@ -3,6 +3,10 @@
 set -euo pipefail
 source script/lib/blob-store.sh
 
+if [[ -n "${CARGO_HOME:-}" && -d "${CARGO_HOME}/bin" ]]; then
+    export PATH="${CARGO_HOME}/bin:${PATH}"
+fi
+
 build_flag="--release"
 target_dir="release"
 open_result=false

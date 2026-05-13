@@ -42,11 +42,17 @@ jobs:
         with:
           # Keep aligned with `[toolchain] channel` in rust-toolchain.toml
           toolchain: "1.95.0"
+          targets: aarch64-apple-darwin
+          # Comma-separated for rustup 1.28+ (matches rust-toolchain.toml components).
+          components: rustfmt, clippy, rust-analyzer, rust-src
 
       - name: rust-cache
         uses: swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6
         with:
           shared-key: fork-mac-aarch64
+          # Saving ~/.cargo/bin can restore rustup/cargo proxies that disagree with the runner's
+          # rustup-init, causing `unexpected argument 'install'` when cargo invokes rustup.
+          cache-bin: false
           # Save registry + target even when bundle-mac or later steps fail (post step runs on failure).
           cache-on-failure: true
           # Workspace crates are the expensive part of this repo; include them in target cache.
