@@ -6,7 +6,7 @@ use crate::{
     display_map::DisplayRow,
     scroll::{ScrollBehavior, ScrollOffset},
 };
-use gpui::{Context, Point, Window};
+use gpui::{Context, Point, Window, point};
 use settings::Settings;
 
 impl Editor {

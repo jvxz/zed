@@ -1633,7 +1633,7 @@ fn editor_page() -> SettingsPage {
         ]
     }
 
-    fn scrolling_section() -> [SettingsPageItem; 9] {
+    fn scrolling_section() -> [SettingsPageItem; 10] {
         [
             SettingsPageItem::SectionHeader("Scrolling"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -1770,7 +1770,7 @@ fn editor_page() -> SettingsPage {
                             .as_ref()
                             .and_then(|smooth_scroll| smooth_scroll.enabled.as_ref())
                     },
-                    write: |settings_content, value| {
+                    write: |settings_content, value, _| {
                         settings_content
                             .editor
                             .smooth_scroll

@@ -444,15 +444,16 @@ pub struct ScrollManager {
 
 impl ScrollManager {
     pub fn new(cx: &mut Context<Editor>) -> Self {
-        let editor_settings = EditorSettings::get_global(cx);
+        let vertical_scroll_margin = EditorSettings::get_global(cx).vertical_scroll_margin;
+        let smooth_scroll = EditorSettings::get_global(cx).smooth_scroll.enabled;
         let anchor = cx.new(|_| SharedScrollAnchor {
             scroll_anchor: ScrollAnchor::new(),
             display_map_id: None,
         });
 
         ScrollManager {
-            vertical_scroll_margin: editor_settings.vertical_scroll_margin,
-            smooth_scroll: editor_settings.smooth_scroll.enabled,
+            vertical_scroll_margin,
+            smooth_scroll,
             anchor,
             scroll_max_x: None,
             ongoing: OngoingScroll::new(),
@@ -951,6 +952,19 @@ impl ScrollManager {
 
     pub(crate) fn scroll_animation(&self) -> Option<&ScrollAnimation> {
         self.scroll_animation.as_ref()
+    }
+
+    pub(crate) fn cancel_animation(&mut self) {
+        let Some(mut animation) = self.scroll_animation.take() else {
+            return;
+        };
+        if !animation.is_animating() {
+            self.scroll_animation = Some(animation);
+            return;
+        }
+        animation.advance();
+        let position = animation.position();
+        self.scroll_animation = Some(ScrollAnimation::Completed { position });
     }
 
     pub(crate) fn update_animation(&mut self) -> Option<ScrollAnimation> {

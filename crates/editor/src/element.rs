@@ -30,8 +30,8 @@ use crate::{
     inlay_hint_settings,
     mouse_context_menu::{self, MenuPosition},
     scroll::{
-        ActiveScrollbarState, Autoscroll, ScrollOffset, ScrollPixelOffset, ScrollbarThumbState,
-        scroll_amount::ScrollAmount,
+        ActiveScrollbarState, Autoscroll, ScrollBehavior, ScrollOffset, ScrollPixelOffset,
+        ScrollbarThumbState, scroll_amount::ScrollAmount,
     },
 };
 use buffer_diff::{DiffHunkStatus, DiffHunkStatusKind};
